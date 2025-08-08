@@ -1,0 +1,721 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainQuest | Викторина в Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6a5af9;
+            --secondary: #d66efd;
+            --accent: #00cec9;
+            --dark: #2d3436;
+            --light: #f7f7ff;
+            --success: #00b894;
+            --danger: #ff7675;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            color: #a9b7c6;
+            font-size: 1rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #a9b7c6;
+            margin-top: 5px;
+        }
+        
+        .question-container {
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        .question {
+            font-size: 1.4rem;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .option-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+
+ᅠ ᅠ, [08/08/2025 17:28]
+padding: 18px 20px;
+            color: var(--light);
+            font-size: 1.1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .option-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 5px 15px rgba(106, 90, 249, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(106, 90, 249, 0.6);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .progress-container {
+            margin: 25px 0;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #a9b7c6;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .result-icon {
+            font-size: 5rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .result-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--light);
+        }
+        
+        .trophy {
+            font-size: 4rem;
+            margin: 20px 0;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+ᅠ ᅠ, [08/08/2025 17:28]
+@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            top: -10px;
+            opacity: 0;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .question {
+                font-size: 1.2rem;
+            }
+            
+            .option-btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
+            
+            .action-btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo pulse">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h1>BrainQuest</h1>
+            <p class="subtitle">Проверь свои знания в увлекательной викторине!</p>
+        </header>
+        
+        <div id="gameScreen">
+            <div class="card">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="scoreValue">0</div>
+                        <div class="stat-label">Очки</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="levelValue">1</div>
+                        <div class="stat-label">Уровень</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="streakValue">0</div>
+                        <div class="stat-label">Серия</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Прогресс</span>
+                        <span id="progressText">1/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question" id="questionText">
+                        Загрузка вопроса...
+                    </div>
+                </div>
+                
+                <div class="options-grid" id="optionsContainer">
+                    <!-- Опции будут добавлены через JS -->
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn btn-secondary" id="hintBtn">
+                    <i class="fas fa-lightbulb"></i> Подсказка
+                </button>
+                <button class="action-btn btn-primary" id="nextBtn" disabled>
+                    <i class="fas fa-arrow-right"></i> Далее
+                </button>
+            </div>
+        </div>
+        
+        <div id="resultScreen" class="hidden">
+            <div class="card">
+                <div class="result-container">
+                    <div class="trophy">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h2 class="result-title">Викторина завершена!</h2>
+                    <div class="result-score">
+                        Твой счет: <span id="finalScore">0</span>
+                    </div>
+                    <p>Ты ответил правильно на <strong id="correctAnswers">0</strong> из <strong id="totalQuestions">0</strong> вопросов</p>
+                    
+                    <div class="action-buttons" style="margin-top: 30px;">
+                        <button class="action-btn btn-secondary" id="shareBtn">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                        <button class="action-btn btn-primary" id="restartBtn">
+
+ᅠ ᅠ, [08/08/2025 17:28]
+<i class="fas fa-redo"></i> Играть снова
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // Данные викторины
+        const quizData = [
+            {
+                question: "Сколько планет в Солнечной системе?",
+                options: ["7", "8", "9", "10"],
+                correct: 1,
+                hint: "Плутон больше не считается планетой"
+            },
+            {
+                question: "Какая самая длинная река в мире?",
+                options: ["Амазонка", "Нил", "Янцзы", "Миссисипи"],
+                correct: 0,
+                hint: "Она находится в Южной Америке"
+            },
+            {
+                question: "Кто написал роман 'Преступление и наказание'?",
+                options: ["Лев Толстой", "Фёдор Достоевский", "Антон Чехов", "Иван Тургенев"],
+                correct: 1,
+                hint: "Автор также написал 'Братья Карамазовы'"
+            },
+            {
+                question: "Какое животное является символом России?",
+                options: ["Медведь", "Орёл", "Волк", "Тигр"],
+                correct: 0,
+                hint: "Этот зверь часто встречается в русских сказках"
+            },
+            {
+                question: "Какой химический элемент обозначается как 'Au'?",
+                options: ["Серебро", "Золото", "Алюминий", "Аргон"],
+                correct: 1,
+                hint: "Этот металл используется в ювелирных изделиях"
+            },
+            {
+                question: "Какая самая маленькая страна в мире?",
+                options: ["Монако", "Мальдивы", "Ватикан", "Сан-Марино"],
+                correct: 2,
+                hint: "Расположена внутри Рима"
+            },
+            {
+                question: "Кто изобрел телефон?",
+                options: ["Томас Эдисон", "Александр Белл", "Никола Тесла", "Гульельмо Маркони"],
+                correct: 1,
+                hint: "Изобретатель был шотландским ученым"
+            },
+            {
+                question: "Какое море не существует?",
+                options: ["Желтое море", "Коралловое море", "Берингово море", "Сиреневый залив"],
+                correct: 3,
+                hint: "Один из вариантов - вымышленный"
+            },
+            {
+                question: "Какой язык программирования самый популярный в 2024 году?",
+                options: ["Python", "JavaScript", "Java", "C++"],
+                correct: 0,
+                hint: "Этот язык часто используется в Data Science"
+            },
+            {
+                question: "Какой океан самый большой по площади?",
+                options: ["Атлантический", "Индийский", "Тихий", "Северный Ледовитый"],
+                correct: 2,
+                hint: "Он занимает около трети поверхности Земли"
+            }
+        ];
+
+        // Элементы интерфейса
+        const gameScreen = document.getElementById('gameScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextBtn = document.getElementById('nextBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+        const scoreValue = document.getElementById('scoreValue');
+        const levelValue = document.getElementById('levelValue');
+        const streakValue = document.getElementById('streakValue');
+        const finalScore = document.getElementById('finalScore');
+        const correctAnswers = document.getElementById('correctAnswers');
+        const totalQuestions = document.getElementById('totalQuestions');
+        const shareBtn = document.
+
+ᅠ ᅠ, [08/08/2025 17:28]
+getElementById('shareBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // Игровые переменные
+        let currentQuestion = 0;
+        let score = 0;
+        let correctCount = 0;
+        let answerStreak = 0;
+        let selectedOption = -1;
+        let hintUsed = false;
+
+        // Инициализация игры
+        function initGame() {
+            currentQuestion = 0;
+            score = 0;
+            correctCount = 0;
+            answerStreak = 0;
+            updateScore();
+            showQuestion();
+        }
+
+        // Показать текущий вопрос
+        function showQuestion() {
+            const question = quizData[currentQuestion];
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            hintUsed = false;
+            hintBtn.disabled = false;
+            nextBtn.disabled = true;
+            selectedOption = -1;
+            
+            // Создание кнопок с вариантами ответов
+            question.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.classList.add('option-btn');
+                optionBtn.innerHTML = `
+                    <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionBtn.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionBtn);
+            });
+            
+            // Обновление прогресса
+            progressText.textContent = ${currentQuestion + 1}/${quizData.length};
+            progressFill.style.width = ${((currentQuestion) / quizData.length) * 100}%;
+        }
+
+        // Выбор варианта ответа
+        function selectOption(index) {
+            if (selectedOption !== -1) return;
+            
+            selectedOption = index;
+            const options = document.querySelectorAll('.option-btn');
+            const question = quizData[currentQuestion];
+            
+            // Пометить выбранный вариант
+            options[index].style.background = 'rgba(255, 255, 255, 0.2)';
+            options[index].style.boxShadow = '0 0 15px rgba(106, 90, 249, 0.5)';
+            
+            // Проверить ответ
+            const isCorrect = index === question.correct;
+            
+            // Показать правильный ответ
+            options[question.correct].style.background = 'rgba(0, 184, 148, 0.3)';
+            options[question.correct].style.boxShadow = '0 0 15px rgba(0, 184, 148, 0.5)';
+            
+            // Пометить неправильный выбор
+            if (!isCorrect) {
+                options[index].style.background = 'rgba(255, 118, 117, 0.3)';
+                options[index].style.boxShadow = '0 0 15px rgba(255, 118, 117, 0.5)';
+                answerStreak = 0;
+            } else {
+                score += hintUsed ? 5 : 10;
+                correctCount++;
+                answerStreak++;
+                
+                // Бонус за серию
+                if (answerStreak >= 3) {
+                    score += 5;
+                }
+            }
+            
+            // Обновить статистику
+            updateScore();
+            nextBtn.disabled = false;
+        }
+
+        // Обновление статистики
+        function updateScore() {
+            scoreValue.textContent = score;
+            streakValue.textContent = answerStreak;
+            levelValue.textContent = Math.floor(score / 50) + 1;
+        }
+
+        // Показать подсказку
+        function showHint() {
+            if (hintUsed || selectedOption !== -1) return;
+            
+            const question = quizData[currentQuestion];
+            alert(question.hint);
+            hintUsed = true;
+            hintBtn.disabled = true;
+        }
+
+        // Перейти к следующему вопросу
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+
+ᅠ ᅠ, [08/08/2025 17:28]
+}
+        }
+
+        // Показать результаты
+        function showResults() {
+            gameScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            finalScore.textContent = score;
+            correctAnswers.textContent = correctCount;
+            totalQuestions.textContent = quizData.length;
+            
+            // Создать конфетти
+            createConfetti();
+        }
+
+        // Создать эффект конфетти
+        function createConfetti() {
+            const colors = ['#6a5af9', '#d66efd', '#00cec9', '#00b894', '#fdcb6e'];
+            const container = document.body;
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = ${Math.random() * 100}vw;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.opacity = '1';
+                
+                container.appendChild(confetti);
+                
+                // Анимация падения
+                const animation = confetti.animate([
+                    { top: '-10px', transform: 'rotate(0deg)' },
+                    { top: '100vh', transform: 'rotate(720deg)' }
+                ], {
+                    duration: 3000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+                
+                // Удалить после анимации
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Поделиться результатом
+        function shareResults() {
+            if (tg.platform !== 'unknown') {
+                tg.showPopup({
+                    title: 'Поделиться результатом',
+                    message: Я набрал ${score} очков в викторине BrainQuest! Попробуй и ты!,
+                    buttons: [{ type: 'ok' }]
+                });
+            } else {
+                alert(`Я набрал ${score} очков в викторине BrainQuest! Попробуй и ты!`);
+            }
+        }
+
+        // Перезапустить игру
+        function restartGame() {
+            gameScreen.classList.remove('hidden');
+            resultScreen.classList.add('hidden');
+            initGame();
+        }
+
+        // Назначение обработчиков событий
+        nextBtn.addEventListener('click', nextQuestion);
+        hintBtn.addEventListener('click', showHint);
+        shareBtn.addEventListener('click', shareResults);
+        restartBtn.addEventListener('click', restartGame);
+
+        // Запуск игры
+        document.addEventListener('DOMContentLoaded', initGame);
+        
+        // Отправка данных в бота при закрытии
+        tg.onEvent('viewportChanged', () => {
+            if (tg.isClosingConfirmationEnabled) {
+                tg.sendData(JSON.stringify({ 
+                    action: "save_score", 
+                    score: score,
+                    correct: correctCount,
+                    total: quizData.length
+                }));
+            }
+        });
+    </script>
+</body>
+</html>
